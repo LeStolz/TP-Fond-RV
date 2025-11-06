@@ -1,6 +1,7 @@
 using UnityEngine;
 
-public class ColorChanger : MonoBehaviour
+[RequireComponent(typeof(AudioSource))]
+public class ObjectInteractionManager : MonoBehaviour
 {
     [SerializeField] private Material defaultMaterial;
     [SerializeField] private Material hoverMaterial;
@@ -9,10 +10,12 @@ public class ColorChanger : MonoBehaviour
     bool isSelected = false;
 
     private new Renderer renderer;
+    private AudioSource audioSource;
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
+        audioSource = GetComponent<AudioSource>();
+
         renderer = GetComponentInChildren<Renderer>();
         defaultMaterial = renderer.material;
     }
@@ -40,5 +43,16 @@ public class ColorChanger : MonoBehaviour
     {
         isSelected = false;
         renderer.material = defaultMaterial;
+    }
+
+    void OnCollisionEnter(Collision collision)
+    {
+        float speed = collision.relativeVelocity.magnitude;
+
+        if (speed > 1f)
+        {
+            audioSource.volume = Mathf.Clamp01(speed / 10f);
+            audioSource.Play();
+        }
     }
 }
